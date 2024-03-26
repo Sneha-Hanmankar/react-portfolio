@@ -172,7 +172,7 @@ export const Table1 = () => {
                   <>
                     <div class="u-center-text">
                       <h3
-                        class="heading-secondary"
+                        class="heading-tertiary"
                         onClick={(val) => toggleSection(tableObj.sectionName)}
                       >
                         {tableObj.sectionName}
