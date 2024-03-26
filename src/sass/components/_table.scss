@@ -91,6 +91,7 @@
 
   .t-data:last-child {
     width: 100%; /* Set width of last item to 100% to make it go to the next line */
+    display: none;
   }
 
   .t-row {
@@ -106,5 +107,8 @@
       background-color: $color-grey-light-1;
       margin-bottom: 2rem;
     }
+  }
+  td:last-child {
+    display: none;
   }
 }

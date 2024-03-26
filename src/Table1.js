@@ -56,8 +56,8 @@ const data = [
         subject3: "Science",
         subject4: "Geography",
         actions: "editable",
-        comments: "CommentPCommentO",
         toggleComments: true,
+        comments: "CommentPCommentO",
         toggleSection: true,
         //comments:['CommentA', 'CommentB', 'CommentC']
       },
@@ -68,8 +68,8 @@ const data = [
         subject3: "Zoology",
         subject4: "Biology",
         actions: "editable",
-        comments: "CommentPCommentQ",
         toggleComments: true,
+        comments: "CommentPCommentQ",
         toggleSection: true,
         //comments:['CommentA', 'CommentB', 'CommentC']
       },
@@ -84,8 +84,11 @@ const data = [
         city: "St.Louis",
         state: "Columbia",
         pincode: "100034",
-        actions: "editable",
+        region: "West",
         comments: "CommentZCommentZ",
+        latitude: "10degNorth",
+        longitude: "25degSouth",
+        actions: "editable",
         //comments:['CommentA', 'CommentB', 'CommentC'],
         toggleComments: true,
         toggleSection: true,
@@ -180,7 +183,17 @@ export const Table1 = () => {
                         (colNames) => {
                           return (
                             <>
-                              <div className="t-heading">{colNames}</div>
+                              {colNames === "comments" ? (
+                                <div style={{ display: "none" }}></div>
+                              ) : colNames === "toggleComments" ? (
+                                <div style={{ display: "none" }}></div>
+                              ) : colNames === "toggleSection" ? (
+                                <div style={{ display: "none" }}></div>
+                              ) : colNames === "id" ? (
+                                <div className="t-heading"></div>
+                              ) : (
+                                <div className="t-heading">{colNames}</div>
+                              )}
                             </>
                           );
                         }
@@ -200,9 +213,30 @@ export const Table1 = () => {
                                   tableObj.sectionData[rowItem]
                                 ).map((rowData, cellIndex) => {
                                   return (
-                                    <td className="t-data" key={cellIndex}>
-                                      {rowData}
-                                    </td>
+                                    <>
+                                      {typeof rowData === "boolean" ? (
+                                        <span
+                                          style={{ display: "none" }}
+                                        ></span>
+                                      ) : cellIndex === 7 ? (
+                                        <span
+                                          style={{ display: "none" }}
+                                        ></span>
+                                      ) : rowData === "editable" ? (
+                                        <td className="t-data">
+                                          <span>
+                                            <button>Edit</button>
+                                          </span>
+                                          <span>
+                                            <button>Delete</button>
+                                          </span>
+                                        </td>
+                                      ) : (
+                                        <td className="t-data" key={cellIndex}>
+                                          {rowData}
+                                        </td>
+                                      )}
+                                    </>
                                   );
                                 })}
                               </div>
