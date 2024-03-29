@@ -105,6 +105,41 @@ export const Table1 = () => {
   });
   const [newArr, setNewArr] = React.useState([]); // State to hold transformed data
 
+  //if you need to add new properties in the existing data
+  const addNewProps = () => {
+    const newData = data.map((section) => {
+      const updatedSection = {};
+      for (const [key, value] of Object.entries(section)) {
+        updatedSection[key] = value.map((item) => {
+          return {
+            ...item,
+            prop101: "101",
+            prop102: "102",
+          };
+        });
+      }
+      return updatedSection;
+    });
+
+    console.log(newData);
+  };
+
+  //if you want to remove any not required common property from all sects
+  const removeTogglesFromData = () => {
+    const newData = data.map((section) => {
+      const updatedSection = {};
+      for (const [key, value] of Object.entries(section)) {
+        updatedSection[key] = value.map((item) => {
+          const { toggleComments, toggleSection, ...newItem } = item;
+          return newItem;
+        });
+      }
+      return updatedSection;
+    });
+
+    console.log(newData);
+  };
+
   const toggleSection = (val) => {
     const updatedArr = newArr.map((sect) => {
       if (sect.sectionName === val) {

@@ -1,0 +1,35 @@
+@import "../abstracts/mixins.scss";
+@import "../abstracts/variables";
+
+.file-container {
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid $color-grey-dark-2;
+
+  .img-pic {
+    display: block;
+    width: 100%;
+  }
+
+  .btn-cotainer {
+    margin: 0 auto;
+  }
+
+  .p-text {
+    width: 40%;
+    margin-left: 34%;
+    font-size: 1.75rem;
+  }
+  .b-margin {
+    margin-left: 43%;
+  }
+}
+
+.upload-btn {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.upload-btn--1 {
+  width: 25%;
+}
