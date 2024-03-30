@@ -25,4 +25,4 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
       - name: Run Docker container
-        run: docker run -d -p 8080:80 react-portfolio
+        run: docker run -d -p 8080:80 snehaha/react-portfolio
