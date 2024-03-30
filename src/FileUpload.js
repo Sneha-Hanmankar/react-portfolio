@@ -76,7 +76,7 @@ export const FileUpload = () => {
           <div className="p-btn-container">
             <p class="paragraph p-text">
               Drag and drop a PDF, Microsoft Word, Excel, PowerPoint, or image
-              file to use our file uploader.
+              file to use our file uploader v1.
             </p>
             <button class="btn b-margin" onClick={uploadFiles}>
               <input type="files" hidden />
