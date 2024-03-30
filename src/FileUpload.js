@@ -80,7 +80,7 @@ export const FileUpload = () => {
             </p>
             <button class="btn b-margin" onClick={uploadFiles}>
               <input type="files" hidden />
-              Select Files
+              Select Files v1
             </button>
           </div>
         </div>
