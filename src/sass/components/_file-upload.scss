@@ -2,10 +2,10 @@
 @import "../abstracts/variables";
 
 .file-container {
-  margin: 0 auto;
   padding: 2rem;
   border: 1px solid $color-grey-dark-2;
-
+  width: 90vw;
+  margin: auto;
   .img-pic {
     display: block;
     width: 100%;
@@ -17,11 +17,30 @@
 
   .p-text {
     width: 40%;
-    margin-left: 34%;
     font-size: 1.75rem;
   }
   .b-margin {
     margin-left: 43%;
+  }
+}
+
+.file-container.highlight {
+  border-color: #00c;
+}
+
+.file-container.animate {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.95);
   }
 }
 
@@ -32,4 +51,57 @@
 
 .upload-btn--1 {
   width: 25%;
+}
+
+.bgItem {
+  background-color: cadetblue;
+}
+
+//
+
+.file-upload-table {
+  border: 0.5px solid grey;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.table-headers {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  div:nth-child(1) {
+    align-self: center;
+  }
+  .header-names {
+    text-align: center;
+    padding: 1rem;
+    border: 0.5px solid grey;
+    margin: 0.2px;
+  }
+  .checkbox {
+    text-align: center;
+    padding: 1rem;
+    border-bottom: 0.5px solid grey;
+  }
+}
+
+.table-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-rows: auto;
+  grid-gap: 2rem;
+}
+
+.selected-image-card {
+  display: grid;
+  justify-content: center;
+}
+
+.selected-image-card > span:nth-child(1) {
+  width: 100px;
+  text-align: end;
+}
+
+.selected-image-card > span:nth-child(3) {
+  width: 100px;
 }

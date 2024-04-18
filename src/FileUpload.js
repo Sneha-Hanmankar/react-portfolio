@@ -1,117 +1,235 @@
-import React from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import "../src/sass/components/_file-upload.scss";
 import "../src/sass/components/_button.scss";
 import "../src/sass/base/_utilities.scss";
 import basicFolderImage from "./linea_basic_1.0/_SVG/basic_folder.svg";
+import Trash from "../src/linea_basic_1.0/_SVG/basic_trashcan.svg";
+import FileImg from "../src/linea_basic_1.0/_SVG/basic_sheet.svg";
 
 export const FileUpload = () => {
-  const [files, setFiles] = React.useState([]);
-  const [uploadProgress, setUploadProgress] = React.useState(0);
-  const [uploading, setUploading] = React.useState(false);
+  const [base64, setBase64] = React.useState([]);
+  const dropArea = useRef(null);
+  const [deleteAll, setDeleteAll] = React.useState([]);
 
-  const handleDrop = (event) => {
+  const handleDrop = useCallback((event) => {
     event.preventDefault();
-    const newFiles = [...event.dataTransfer.files];
-    setFiles(newFiles);
-  };
+    unhighlight();
+  }, []);
 
   const handleDragOver = (event) => {
     event.preventDefault();
   };
 
-  const uploadFiles = () => {
-    const xhr = new XMLHttpRequest();
+  function highlight() {
+    dropArea.current?.classList.add("highlight", "animate");
+  }
 
-    xhr.upload.addEventListener("progress", (event) => {
-      if (event.lengthComputable) {
-        const progress = (event.loaded / event.total) * 100;
-        console.log("progress", progress, event.loaded, event.total);
-        setUploadProgress(progress);
-      }
-    });
+  function unhighlight() {
+    dropArea.current?.classList.remove("highlight", "animate");
+  }
 
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        // Handle successful upload
-        console.log("Upload successful");
-        setUploading(false);
-        setUploadProgress(0);
-      }
+  useEffect(() => {
+    const currentDropArea = dropArea.current;
+
+    if (!currentDropArea) return;
+
+    const handleDragEnter = () => {
+      highlight();
     };
 
-    // Create FormData object
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("files[]", file);
+    const handleDragLeave = () => {
+      unhighlight();
+    };
+
+    currentDropArea.addEventListener("dragenter", handleDragEnter);
+    currentDropArea.addEventListener("dragover", highlight);
+    currentDropArea.addEventListener("dragleave", handleDragLeave);
+    currentDropArea.addEventListener("drop", handleDrop);
+
+    return () => {
+      currentDropArea.removeEventListener("dragenter", handleDragEnter);
+      currentDropArea.removeEventListener("dragover", highlight);
+      currentDropArea.removeEventListener("dragleave", handleDragLeave);
+      currentDropArea.removeEventListener("drop", handleDrop);
+    };
+  }, [handleDrop]); // Run this effect only once on mount
+
+  const handleFileUpload = (event) => {
+    console.log("event", event);
+    if (event !== null || event !== undefined) {
+      // Programmatically trigger the click event of the hidden file input
+      const fileInput = document.getElementById("fileInput");
+      fileInput.click(event);
+    }
+  };
+
+  function filesToBase64(fileTypes) {
+    return new Promise((resolve, reject) => {
+      const promises = [];
+
+      fileTypes.forEach((fileType) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          // Extract Base64 data from the result
+          const base64Data = reader.result.split(",")[1]; // Remove data URL scheme
+          const base64URL = `data:${fileType.type};base64,${base64Data}`;
+          promises.push({
+            fileName: fileType.name,
+            fileSize: fileType.size,
+            fileExt: fileType.type,
+            base64Str: base64Data,
+            imgURL: base64URL,
+          });
+
+          // Resolve the promise when all files have been read
+          if (promises.length === fileTypes.length) {
+            resolve(promises);
+          }
+        };
+
+        reader.onerror = () => {
+          reader.abort();
+          reject(new Error("Failed to read file as Base64"));
+        };
+
+        reader.readAsDataURL(fileType);
+      });
     });
+  }
 
-    // Simulate file upload (replace this with your actual upload logic)
-    xhr.open("POST", "your-upload-endpoint");
-    xhr.send(formData);
+  const handleInputChange = (event) => {
+    const newFiles = [...event.target.files];
+    filesToBase64(newFiles)
+      .then((base64Array) => {
+        setBase64((prevArr) => [...prevArr, ...base64Array]);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
-    // Set uploading state to true
-    setUploading(true);
+  const removeImage = (fileData) => {
+    const updatedArr = base64.filter((data) => data.fileName !== fileData);
+    setBase64([...updatedArr]);
+  };
+
+  const handleCheckbox = (event) => {
+    if (event.target.checked) {
+      setDeleteAll([...base64]);
+    } else {
+      setDeleteAll([]);
+    }
   };
 
   return (
     <>
-      <div
-        className="file-container"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        <div class="u-center-text">
-          <h3 className="heading-secondary">Select or Drop Files</h3>
-        </div>
-        <div>
-          <div className="img-container">
-            <img
-              src={basicFolderImage}
-              height="100px"
-              weight={100}
-              class="img-pic"
-              alt="file"
-            />
-          </div>
-          <div className="p-btn-container">
-            <p class="paragraph p-text">
-              Drag and drop a PDF, Microsoft Word, Excel, PowerPoint, or image
-              file to use our file uploader v1.
-            </p>
-            <button class="btn b-margin" onClick={uploadFiles}>
-              <input type="files" hidden />
-              Select Files v1
-            </button>
-          </div>
-        </div>
+      <div className="file-container">
+        {/* display the uploaded files in table format */}
+        {base64.length > 0 ? (
+          <>
+            <div className="file-upload-table">
+              <div className="table-headers">
+                <div className="checkbox" key={2}>
+                  <input
+                    type="checkbox"
+                    onChange={handleCheckbox}
+                    checked={deleteAll.length > 0}
+                  />
+                </div>
+                <div className="header-names" key={1}>
+                  File Details
+                </div>
+              </div>
+              <div className="table-body">
+                {base64.map((fileData) => {
+                  return (
+                    <>
+                      <div
+                        key={fileData.fileName}
+                        className={`selected-image-card ${deleteAll.length > 0 ? "bgItem" : ""} `}
+                      >
+                        <span>
+                          <img
+                            src={Trash}
+                            alt="Delete"
+                            height={20}
+                            width={20}
+                            onClick={() => removeImage(fileData.fileName)}
+                          />
+                        </span>
+                        <span>
+                          {fileData.imgURL !== undefined &&
+                            (fileData.fileExt === "application/pdf" ? (
+                              <img
+                                src={FileImg}
+                                alt="preview"
+                                height={100}
+                                width={100}
+                              />
+                            ) : (
+                              <img
+                                src={`data:${fileData.fileExt};base64,${fileData.base64Str}`}
+                                alt="preview"
+                                height="60vw"
+                                width="60vw"
+                              />
+                            ))}
+                        </span>
+                        <span>{fileData.fileName}</span>
+                      </div>
+                    </>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="upload-btn">
+              <button className="btn upload-btn--1">Upload</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={handleFileUpload}
+              ref={dropArea}
+            >
+              <div className="u-center-text">
+                <h3 className="heading-secondary">
+                  Click / Select / Drop Files
+                </h3>
+              </div>
+              <div className="img-container">
+                <img
+                  src={basicFolderImage}
+                  height="100px"
+                  weight={100}
+                  className="img-pic" // corrected class to className
+                  alt="file"
+                />
+              </div>
+              <div style={{ width: "60vw", margin: "auto" }}>
+                <p className="paragraph">
+                  Drag and drop a PDF, Microsoft Word, Excel, PowerPoint, or
+                  image file to use our file uploader v1.
+                </p>
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  id="fileInput"
+                  onChange={handleInputChange}
+                  hidden
+                  multiple
+                />
+                {/* Button to trigger file upload */}
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <button className="btn">Select Files v1</button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
-      <div class="upload-btn">
-        <button class="btn upload-btn--1" onClick={uploadFiles}>
-          Upload
-        </button>
-      </div>
-
-      <p>Drag files here</p>
-      {uploading && (
-        <div>
-          <p>Uploading...</p>
-          <progress value={uploadProgress} max="100" />
-        </div>
-      )}
-      {files.length > 0 && (
-        <ul>
-          {files.map((file, index) => (
-            <li key={index}>{file.name}</li>
-          ))}
-        </ul>
-      )}
-
-      {uploadProgress > 0 && uploadProgress < 100 && (
-        <div>
-          <p>Uploading...</p>
-          <progress value={uploadProgress} max="100" />
-        </div>
-      )}
     </>
   );
 };
