@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import "../src/sass/components/_file-upload.scss";
 import "../src/sass/components/_button.scss";
 import "../src/sass/base/_utilities.scss";
@@ -127,6 +128,9 @@ export const FileUpload = () => {
         {/* display the uploaded files in table format */}
         {base64.length > 0 ? (
           <>
+            <div>
+              <Link to="/">Back </Link>
+            </div>
             <div className="file-upload-table">
               <div className="table-headers">
                 <div className="checkbox" key={2}>
@@ -183,7 +187,30 @@ export const FileUpload = () => {
               </div>
             </div>
             <div className="upload-btn">
+              <button
+                className="btn upload-btn--1"
+                disable={deleteAll.length === 0}
+                onClick={() => {
+                  if (deleteAll.length > 0) setBase64([]);
+                }}
+              >
+                Delete All
+              </button>
               <button className="btn upload-btn--1">Upload</button>
+              <button
+                className="btn upload-btn--1"
+                type="file"
+                onClick={handleFileUpload}
+              >
+                <input
+                  type="file"
+                  id="fileInput"
+                  onChange={handleInputChange}
+                  hidden
+                  multiple
+                />
+                Add New file
+              </button>
             </div>
           </>
         ) : (

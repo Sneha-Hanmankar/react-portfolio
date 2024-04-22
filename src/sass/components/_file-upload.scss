@@ -47,6 +47,9 @@
 .upload-btn {
   text-align: center;
   margin-top: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .upload-btn--1 {
