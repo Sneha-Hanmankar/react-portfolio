@@ -17,6 +17,7 @@ import {
 import { FileUpload } from "./FileUpload";
 import { Table1 } from "./Table1";
 import ErrorPage from "./error-page";
+import FormComponent from "./FormComponent";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -32,6 +33,7 @@ const routes = createBrowserRouter(
         //   })
         // }
       />
+      <Route path="form-comp" element={<FormComponent />} />
       {/* <Route element={<AuthLayout />}>
         <Route path="login" element={<Login />} loader={redirectIfUser} />
         <Route path="logout" action={logoutUser} />
