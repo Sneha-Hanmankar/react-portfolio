@@ -18,7 +18,10 @@ const CustomInputComponent = ({
 
 const FormComponent = () => {
   const [errorMsgs, setErrorMsgs] = useState([
-    { code: 1, msg: "Name should not include digits or special characters" },
+    {
+      code: 1,
+      msg: "Name should not include digits or special characters or empty spaces",
+    },
     { code: 2, msg: "Name should not contain Sneha" },
   ]);
   const initVals = {
@@ -60,46 +63,36 @@ const FormComponent = () => {
     { city: "Kochi", state: "Kerala" },
     { city: "", state: "None" },
   ];
-  let dupArr = errorMsgs;
+  let dupArr = [];
   // Custom handleNameChange function for a specific field
   const handleNameChange = (fieldName, value1, form) => {
     const { value } = value1.target;
-    form.setFieldValue("name", value);
+    form.setFieldValue(fieldName, value);
     let pattern = /^[^\d\W]+$/; //doesnt contains no.
-
     let pattern1 = /^(?!.*sneha).*$/; //doesnt contain sneha
 
     if (pattern1.test(value)) {
-      console.log("doesnt contains sneha-", value);
-      dupArr = dupArr.filter((item) => item.code !== 2); //remove the second errmsg
-    } else if (dupArr.find((item) => item.code !== 2)) {
-      console.log("contains sneha-", value);
-      dupArr.push({ code: 2, msg: "Name should not contain Sneha" });
+      dupArr = dupArr.filter((item) => item.code !== 2);
+    } else {
+      if (dupArr.findIndex((item) => item.code === 2) === -1)
+        dupArr.push({ code: 2, msg: "Name should not contain Sneha" });
     }
     if (pattern.test(value)) {
-      console.log("doesnt contains no and special-", value);
       dupArr = dupArr.filter((item) => item.code !== 1); //remove the first errmsg
     } else {
-      console.log("contains no. and special chars-", value);
-      dupArr.push({
-        code: 1,
-        msg: "Name should not include digits or special characters",
-      });
+      if (dupArr.findIndex((item) => item.code === 1) === -1)
+        dupArr.push({
+          code: 1,
+          msg: "Name should not include digits or special characters or empty spaces",
+        });
     }
-    console.log("dupArr- value", dupArr);
-    console.log("test", pattern1.test(value), pattern.test(value));
+    setErrorMsgs([...dupArr]);
   };
-
-  // const handleNameChange = (fieldName, event, form) => {
-  //   const { value } = event.target;
-  //   handleNameChange(fieldName, value, form);
-  // };
 
   const getCategory = (event, form) => {
     const catVal = categoryOption.find(
       (item) => item.value === event.target.value
     ).label;
-    console.log("here", event.target.value, catVal);
     form.setFieldValue("age", event.target.value);
     form.setFieldValue("category", catVal);
   };
@@ -120,6 +113,7 @@ const FormComponent = () => {
         validateOnChange={true} // Set validateOnChange to true
         validate={(values) => {
           const errors = {};
+          console.log("values.name", values.name, !values.name);
           // if value.name is null, undefined, false, 0, ''
           if (!values.name) {
             errors.name = "Required";
@@ -152,7 +146,7 @@ const FormComponent = () => {
           ) {
             errors.email = "Invalid email address";
           }
-          // console.log("errrr", errors, values);
+          console.log("errrr", errors, values);
           return errors;
         }}
         onSubmit={(values, { setSubmitting }) => {
@@ -186,7 +180,7 @@ const FormComponent = () => {
               onBlur={handleBlur}
               value={values.name ?? ""}
             />
-            {errors.name && touched.name && (
+            {touched.name && (
               <div>
                 {errorMsgs.map((error, index) => (
                   <div key={index}>{error.msg}</div>
