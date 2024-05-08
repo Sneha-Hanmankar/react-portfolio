@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Formik, Form, Field } from "formik";
 import Select from "react-select";
 import { debounce } from "./utils";
+import "../src/sass/components/_form-container.scss";
 
 const CustomInputComponent = ({
   field, // { name, value, onChange, onBlur }
@@ -18,6 +19,10 @@ const CustomInputComponent = ({
 
 const FormComponent = () => {
   const [errorMsgs, setErrorMsgs] = useState([
+    {
+      code: 0,
+      msg: "Required",
+    },
     {
       code: 1,
       msg: "Name should not include digits or special characters or empty spaces",
@@ -71,6 +76,12 @@ const FormComponent = () => {
     let pattern = /^[^\d\W]+$/; //doesnt contains no.
     let pattern1 = /^(?!.*sneha).*$/; //doesnt contain sneha
 
+    if (value) {
+      dupArr = dupArr.filter((item) => item.code !== 0);
+    } else {
+      if (dupArr.findIndex((item) => item.code === 0) === -1)
+        dupArr.push({ code: 0, msg: "Required" });
+    }
     if (pattern1.test(value)) {
       dupArr = dupArr.filter((item) => item.code !== 2);
     } else {
@@ -114,11 +125,7 @@ const FormComponent = () => {
         validate={(values) => {
           const errors = {};
           console.log("values.name", values.name, !values.name);
-          // if value.name is null, undefined, false, 0, ''
-          if (!values.name) {
-            errors.name = "Required";
-          }
-
+          // if value.age is null, undefined, false, 0, ''
           if (!values.age) {
             errors.age = "Required";
           }
@@ -168,139 +175,175 @@ const FormComponent = () => {
           setFieldValue,
           /* and other goodies */
         }) => (
-          <Form onSubmit={handleSubmit}>
-            <div>Name:</div>
-            <input
-              type="text"
-              name="name"
-              //   onChange={handleChange}
-              onChange={(event) =>
-                handleNameChange("name", event, { setFieldValue })
-              }
-              onBlur={handleBlur}
-              value={values.name ?? ""}
-            />
-            {touched.name && (
-              <div>
-                {errorMsgs.map((error, index) => (
-                  <div key={index}>{error.msg}</div>
-                ))}
+          <Form onSubmit={handleSubmit} className="form-container">
+            <div className="field-container">
+              <div>Name:</div>
+              <Field
+                type="text"
+                name="name"
+                //   onChange={handleChange}
+                onChange={(event) =>
+                  handleNameChange("name", event, { setFieldValue })
+                }
+                onBlur={handleBlur}
+                value={values.name ?? ""}
+                height="40px"
+                style={{ width: "70%" }}
+              />
+              {touched.name && (
+                <div className="errMsg">
+                  {errorMsgs.map((error, index) => (
+                    <div key={index}>{error.msg}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="field-container">
+              <div>Email:</div>
+              <Field
+                type="email"
+                name="email"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.email ?? ""}
+                style={{ width: "70%" }}
+              />
+              {errors.email && touched.email && (
+                <div className="errMsg"> {errors.email} </div>
+              )}
+            </div>
+
+            <div className="field-container">
+              <div>Age:</div>
+              <Field
+                as="select"
+                name="age"
+                value={values.age || ""}
+                onChange={(event) => {
+                  getCategory(event, { setFieldValue });
+                }}
+                style={{ width: "70%" }}
+              >
+                <option value="1">Age 20-30yrs</option>
+                <option value="2">Age 30-40yrs</option>
+                <option value="3">Age 40yrs</option>
+                <option value="">None</option>
+              </Field>
+              {errors.age && touched.age && (
+                <div className="errMsg">{errors.age}</div>
+              )}
+            </div>
+
+            <div className="field-container">
+              <div>Category:</div>
+              <Field
+                name="category"
+                component={CustomInputComponent}
+                readOnly
+                value={values.category}
+                style={{ width: "70%" }}
+              />
+            </div>
+
+            <div className="field-container">
+              <div>City:</div>
+              <Field
+                as="select"
+                name="city"
+                value={values.city || ""}
+                onChange={(event) => {
+                  getCity(event, { setFieldValue });
+                }}
+                style={{ width: "70%" }}
+              >
+                {locationDetails.map((locate) => {
+                  return (
+                    <option value={locate.city} key={`locate-${locate}`}>
+                      {locate.city}
+                    </option>
+                  );
+                })}
+              </Field>
+              {errors.city && touched.city && (
+                <div className="errMsg">{errors.city} </div>
+              )}
+            </div>
+
+            <div className="field-container">
+              <div>State:</div>
+              <Field
+                name="state"
+                component={CustomInputComponent}
+                readOnly
+                value={values.state}
+                style={{ width: "70%" }}
+              />
+            </div>
+
+            <div className="field-container">
+              <div id="my-radio-group">Gender:</div>
+              <div role="group" aria-labelledby="my-radio-group">
+                <label>
+                  <Field type="radio" name="gender" value="Male" />
+                  Male
+                </label>
+                <label>
+                  <Field type="radio" name="gender" value="Female" />
+                  Female
+                </label>
               </div>
-            )}
-
-            <div>Email:</div>
-            <input
-              type="email"
-              name="email"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.email ?? ""}
-            />
-            {errors.email && touched.email && errors.email}
-
-            <div>Age:</div>
-            <Field
-              as="select"
-              name="age"
-              value={values.age || ""}
-              onChange={(event) => {
-                getCategory(event, { setFieldValue });
-              }}
-            >
-              <option value="1">Age 20-30yrs</option>
-              <option value="2">Age 30-40yrs</option>
-              <option value="3">Age 40yrs</option>
-              <option value="">None</option>
-            </Field>
-            {errors.age && touched.age && errors.age}
-
-            <div>Category:</div>
-            <Field
-              name="category"
-              component={CustomInputComponent}
-              placeholder="Category"
-              readOnly
-              value={values.category}
-            />
-
-            <div>City:</div>
-            <Field
-              as="select"
-              name="city"
-              value={values.city || ""}
-              onChange={(event) => {
-                getCity(event, { setFieldValue });
-              }}
-            >
-              {locationDetails.map((locate) => {
-                return (
-                  <option value={locate.city} key={`locate-${locate}`}>
-                    {locate.city}
-                  </option>
-                );
-              })}
-            </Field>
-            {errors.city && touched.city && errors.city}
-
-            <div>State:</div>
-            <Field
-              name="state"
-              component={CustomInputComponent}
-              placeholder="State"
-              readOnly
-              value={values.state}
-            />
-
-            <div id="my-radio-group">Gender:</div>
-            <div role="group" aria-labelledby="my-radio-group">
-              <label>
-                <Field type="radio" name="gender" value="Male" />
-                Male
-              </label>
-              <label>
-                <Field type="radio" name="gender" value="Female" />
-                Female
-              </label>
             </div>
 
             {/* value="One"   value being stored. Note that the `value` prop
             on the <Field/> is omitted*/}
-            <label>
-              <Field type="checkbox" name="termsNC" />
-              Accept Terms & Conditions
-            </label>
-
-            <div id="prefGroup">Book For:</div>
-            <div role="group" aria-labelledby="prefGroup">
-              <label>
-                <Field type="checkbox" name="bookFor" value="1" />
-                Today
-              </label>
-              <label>
-                <Field type="checkbox" name="bookFor" value="2" />
-                Next day
+            <div className="field-container ">
+              <label className="errMsg">
+                <Field type="checkbox" name="termsNC" />
+                Accept Terms & Conditions
               </label>
             </div>
 
-            <div>Preferences:</div>
-            <Field name="preferences">
-              {({ field }) => (
-                <Select
-                  isMulti
-                  name="preferences"
-                  value={values.preferences}
-                  options={options}
-                  multiple={true}
-                  onChange={(selectedOptions) => {
-                    console.log("values", selectedOptions);
-                    setFieldValue("preferences", [...selectedOptions]);
-                  }}
-                />
-              )}
-            </Field>
+            <div className="field-container">
+              <div id="prefGroup">Book For:</div>
+              <div role="group" aria-labelledby="prefGroup">
+                <label>
+                  <Field type="checkbox" name="bookFor" value="1" />
+                  Today
+                </label>
+                <label>
+                  <Field type="checkbox" name="bookFor" value="2" />
+                  Next day
+                </label>
+              </div>
+            </div>
 
-            <div>
-              <button type="submit" disabled={isSubmitting}>
+            <div className="field-container">
+              <div>Preferences:</div>
+              <Field name="preferences">
+                {({ field }) => (
+                  <Select
+                    isMulti
+                    name="preferences"
+                    value={values.preferences}
+                    options={options}
+                    multiple={true}
+                    onChange={(selectedOptions) => {
+                      console.log("values", selectedOptions);
+                      setFieldValue("preferences", [...selectedOptions]);
+                    }}
+                  />
+                )}
+              </Field>
+            </div>
+
+            <div className="field-container ">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="errMsg"
+                style={{ width: "70%" }}
+              >
                 Submit
               </button>
             </div>

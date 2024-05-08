@@ -1,0 +1,19 @@
+.form-container {
+  width: 40vw;
+  margin: auto;
+  background-color: antiquewhite;
+  display: grid;
+  padding: 2rem;
+}
+
+.field-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  margin-bottom: 3rem;
+  justify-content: center;
+  .errMsg {
+    grid-column: 2 / -1;
+    color: red;
+  }
+}
